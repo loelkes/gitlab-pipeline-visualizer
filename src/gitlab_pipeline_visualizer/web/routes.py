@@ -1,33 +1,25 @@
 import json
-
-from flask import Flask, jsonify, render_template, request
+from flask import jsonify, render_template, request, Blueprint
 from flask_cors import cross_origin
-
-from gitlab_pipeline_visualizer import (
+from ..utils import (
     DEFAULT_MERMAID_CONFIG,
-    GitLabPipelineVisualizer,
     fetch_pipeline_data,
-    logger,
     parse_gitlab_url,
     prepare_graphql_query,
-    setup_logging,
 )
+from ..logger import setup_logging
+from ..GitLabPipelineVisualizer import GitLabPipelineVisualizer
 
-app = Flask(__name__)
+logger = setup_logging(0)
+routes = Blueprint("root", "root")
 
 
-setup_logging(0)
-
-
-@app.route("/")
+@routes.route("/")
 def index():
-    return render_template(
-        "index.html",
-        default_config=DEFAULT_MERMAID_CONFIG,
-    )
+    return render_template("index.html", default_config=DEFAULT_MERMAID_CONFIG)
 
 
-@app.route("/get_query")
+@routes.route("/get_query")
 @cross_origin(methods=["GET"])
 def get_query():
     try:
@@ -37,17 +29,10 @@ def get_query():
     except Exception as e:
         logger.exception(e)
         return jsonify({"error": "Missing parameters"}), 400
-
-    data = {
-        "graphql_query": prepare_graphql_query(
-            project_path, pipeline_id, next_page_cursor
-        ),
-    }
-
-    return jsonify(data)
+    return jsonify({"graphql_query": prepare_graphql_query(project_path, pipeline_id, next_page_cursor)})
 
 
-@app.route("/visualize", methods=["POST"])
+@routes.route("/visualize", methods=["POST"])
 @cross_origin(methods=["POST"])
 def visualize():
     try:
@@ -64,7 +49,7 @@ def visualize():
                     raise ValueError("Pipeline data is empty or invalid")
                 pipeline_data = json.loads(pipeline_data)
             except Exception as e:
-                raise ValueError(f"Invalid pipeline data format: {str(e)}")
+                raise ValueError(f"Invalid pipeline data format: {e}") from e
         else:
             # GitLab credentials input
             gitlab_url = request.form.get("url")
@@ -77,14 +62,10 @@ def visualize():
 
             # Parse the GitLab URL and fetch data
             base_url, project_path, pipeline_id = parse_gitlab_url(gitlab_url)
-            pipeline_data = fetch_pipeline_data(
-                base_url, gitlab_token, project_path, pipeline_id
-            )
+            pipeline_data = fetch_pipeline_data(base_url, gitlab_token, project_path, pipeline_id)
 
         # Create visualizer instance
-        visualizer = GitLabPipelineVisualizer(
-            pipeline_data,
-        )
+        visualizer = GitLabPipelineVisualizer(pipeline_data)
 
         # Generate diagram
         mermaid_content = visualizer.generate_mermaid_content(mode)
@@ -93,34 +74,16 @@ def visualize():
         return jsonify(
             {
                 "raw": visualizer.generate_mermaid(mermaid_content, mermaid_config),
-                "editUrl": visualizer.generate_mermaid_live_url(
-                    mermaid_content, mermaid_config, "edit"
-                ),
-                "viewUrl": visualizer.generate_mermaid_live_url(
-                    mermaid_content, mermaid_config, "view"
-                ),
-                "jpgUrl": visualizer.generate_mermaid_ink_url(
-                    mermaid_content, mermaid_config, "jpg"
-                ),
-                "pngUrl": visualizer.generate_mermaid_ink_url(
-                    mermaid_content, mermaid_config, "png"
-                ),
-                "svgUrl": visualizer.generate_mermaid_ink_url(
-                    mermaid_content, mermaid_config, "svg"
-                ),
-                "webpUrl": visualizer.generate_mermaid_ink_url(
-                    mermaid_content, mermaid_config, "webp"
-                ),
-                "pdfUrl": visualizer.generate_mermaid_ink_url(
-                    mermaid_content, mermaid_config, "pdf"
-                ),
+                "editUrl": visualizer.generate_mermaid_live_url(mermaid_content, mermaid_config, "edit"),
+                "viewUrl": visualizer.generate_mermaid_live_url(mermaid_content, mermaid_config, "view"),
+                "jpgUrl": visualizer.generate_mermaid_ink_url(mermaid_content, mermaid_config, "jpg"),
+                "pngUrl": visualizer.generate_mermaid_ink_url(mermaid_content, mermaid_config, "png"),
+                "svgUrl": visualizer.generate_mermaid_ink_url(mermaid_content, mermaid_config, "svg"),
+                "webpUrl": visualizer.generate_mermaid_ink_url(mermaid_content, mermaid_config, "webp"),
+                "pdfUrl": visualizer.generate_mermaid_ink_url(mermaid_content, mermaid_config, "pdf"),
             }
         )
 
     except Exception as e:
         logger.exception(e)
-        return jsonify({"error": str(e)}), 400
-
-
-if __name__ == "__main__":
-    app.run(debug=True)
+        return jsonify({"error": e}), 400

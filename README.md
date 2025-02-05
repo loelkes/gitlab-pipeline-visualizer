@@ -5,12 +5,11 @@ Visualize GitLab CI pipeline as a Mermaid diagram, showing either the execution 
 ## Features
 
 - Two visualization modes:
+
   - **Timeline**: Shows the execution timeline of jobs (default)
-    
     ![Timeline visualization example](timeline-example.png)
-  
+
   - **Dependencies**: Shows the dependencies between jobs
-    
     ![Dependencies visualization example](dependencies-example.png)
 
 - Multiple output formats:
@@ -23,28 +22,31 @@ Visualize GitLab CI pipeline as a Mermaid diagram, showing either the execution 
 ## Installation
 
 1. Clone the repository:
-```bash
-git clone https://github.com/twidi/gitlab-pipeline-visualizer.git
-cd gitlab-pipeline-visualizer
-```
+
+    ```bash
+    git clone https://github.com/twidi/gitlab-pipeline-visualizer.git
+    cd gitlab-pipeline-visualizer
+    ```
 
 2. Create and activate a virtual environment:
-```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
+
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
 
 3. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
+
+    ```bash
+    pip install .
+    ```
 
 ## Usage
 
 ### Command Line Interface
 
 ```bash
-python gitlab-pipeline-visualizer.py https://gitlab.com/group/project/-/pipelines/123
+gitlab-pipeline-visualizer https://gitlab.com/group/project/-/pipelines/123
 ```
 
 To switch between visualization mode, use `--mode` (`timeline` (the default if not given) or `deps`)
@@ -52,16 +54,19 @@ To switch between visualization mode, use `--mode` (`timeline` (the default if n
 To switch between output, use `--output` (`raw`, `view` or `edit` (url to mermaid.live), `png`, `jpg`, `svg`, `webp`, `pdf` (url to mermaid.ink))
 
 The GitLab token can be provided in three ways (in order of precedence):
+
 1. Command line argument `--token`
 2. Environment variable `GITLAB_TOKEN`
 3. Configuration file
 
 Configuration files can be placed in:
+
 - Windows: `%APPDATA%/gitlab-pipeline-visualizer/config`
 - Unix: `$XDG_CONFIG_HOME/gitlab-pipeline-visualizer/config` (or `~/.config/gitlab-pipeline-visualizer/config`)
 - Or: `~/.gitlab-pipeline-visualizer`
 
 Example config file (INI format):
+
 ```ini
 [gitlab]
 token = glpat-XXXXXXXXXXXXXXXXXXXX
@@ -79,8 +84,7 @@ config =
 
 A web interface is available that provides a user-friendly way to generate pipeline visualizations. It uses the same core functionality as the CLI version.
 
-An online version exists at https://gitlabviz.pythonanywhere.com/
-
+An online version exists at [gitlabviz.pythonanywhere.com](https://gitlabviz.pythonanywhere.com/)
 
 The interface:
 
@@ -102,19 +106,20 @@ With the result from a GraphQL query:
 
 ![Timeline visualization example](web-example5.png)
 
-
 To run the web interface:
 
 ```bash
-python app.py
+# Install additional dependencies
+pip install ".[web]"
+gitlab-pipeline-visualizer-web
 ```
 
-Then visit `http://localhost:5000` in your browser.
+Then visit [localhost:5000](http://localhost:5000) in your browser.
 
 The web interface requires
-- A GitLab pipeline URL
-- Either a GitLab personal access token with `read_api` scope, or the output of a (given) GraphQL query to run on https://gitlab.com/-/graphql-explorer
 
+- A GitLab pipeline URL
+- Either a GitLab personal access token with `read_api` scope, or the output of a (given) GraphQL query to run on [gitlab.com/-/graphql-explorer](https://gitlab.com/-/graphql-explorer)
 
 ### Browser Addon
 
@@ -130,14 +135,13 @@ Note that the addon is currently not packaged or published to any browser extens
 
 #### Configuration
 
-By default, the addon connects to https://gitlabviz.pythonanywhere.com/ for generating visualizations. You can customize this in the addon preferences:
+By default, the addon connects to [gitlabviz.pythonanywhere.com](https://gitlabviz.pythonanywhere.com/) for generating visualizations. You can customize this in the addon preferences:
 
 1. Access the addon options/preferences through your browser's extension management interface
 2. Update the "Server URL" field to point to your preferred visualization server
 3. Save the changes
 
 This configuration option allows you to use a different server instance if you're running your own deployment or want to use an alternative hosted version.
-
 
 ## Requirements
 
@@ -148,21 +152,24 @@ This configuration option allows you to use a different server instance if you'r
 ## Development
 
 1. Clone the repository:
-```bash
-git clone https://github.com/twidi/gitlab-pipeline-visualizer.git
-cd gitlab-pipeline-visualizer
-```
+
+    ```bash
+    git clone https://github.com/twidi/gitlab-pipeline-visualizer.git
+    cd gitlab-pipeline-visualizer
+    ```
 
 2. Create and activate a virtual environment:
-```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
+
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
 
 3. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
+
+    ```bash
+    pip install -e .
+    ```
 
 ## License
 
@@ -170,7 +177,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Author
 
-Created by [Claude sonnet 3.5](https://claude.ai) with the help of [Twidi](https://github.com/twidi)
+Created by [Claude sonnet 3.5](https://claude.ai) with the help of [Twidi](https://github.com/twidi). Refactored by [Christian Lölkes](https://github.com/loelkes).
 
 ## Links
 

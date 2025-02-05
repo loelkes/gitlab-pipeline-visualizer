@@ -1,0 +1,22 @@
+[build-system]
+  build-backend = "setuptools.build_meta"
+  requires      = ["setuptools"]
+
+[tool.setuptools.packages.find]
+  where = ["src"]
+
+[tool.setuptools.package-data]
+  "*" = ["*.html"]
+
+[project]
+  dependencies    = ["requests==2.32.3"]
+  name            = "gitlab-pipeline-visualizer"
+  requires-python = ">=3.12"
+  version         = "0.0.0"
+
+  [project.scripts]
+    gitlab-pipeline-visualizer = "gitlab_pipeline_visualizer.__main__:cli"
+    gitlab-pipeline-visualizer-web = "gitlab_pipeline_visualizer.web.__main__:cli"
+
+  [project.optional-dependencies]
+    web = ["Flask-Cors==5.0.0", "Flask==3.1.0"]
